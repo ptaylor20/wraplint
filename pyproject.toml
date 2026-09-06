@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wraplint"
+version = "0.1.0"
+description = "A linter for line-wrapping problems in text files"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "ptaylor20" }]
+
+[project.scripts]
+wraplint = "wraplint.cli:main"
+
+[tool.setuptools]
+packages = ["wraplint"]
