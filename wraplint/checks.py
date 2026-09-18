@@ -64,10 +64,55 @@ def check_tabs(lines):
     return findings
 
 
+def _paragraphs(lines):
+    # Groups consecutive non-blank lines into paragraphs of (line_no, text)
+    # pairs, the same way a hand-wrapping editor would treat blank lines as
+    # paragraph breaks.
+    para = []
+    for i, raw in enumerate(lines, start=1):
+        text = _strip_newline(raw)
+        if text.strip() == "":
+            if para:
+                yield para
+                para = []
+        else:
+            para.append((i, text))
+    if para:
+        yield para
+
+
+def check_ragged_wrap(lines, max_length, threshold=15):
+    # A hand-wrapped paragraph keeps every line but its last close to the
+    # same width. If one of those interior lines falls well short of that
+    # width, it's usually a sign someone edited the line (added or removed
+    # a few words) and never reflowed the rest of the paragraph to match.
+    findings = []
+    for para in _paragraphs(lines):
+        if len(para) < 2:
+            continue
+        body = para[:-1]
+        wrap_width = max(len(text) for _, text in body)
+        if wrap_width < max_length - threshold:
+            continue
+        for line_no, text in body:
+            if wrap_width - len(text) >= threshold:
+                findings.append(
+                    Finding(
+                        line_no,
+                        len(text) + 1,
+                        "WL004",
+                        f"line wraps at {len(text)} chars, short of the "
+                        f"paragraph's {wrap_width}-char wrap width",
+                    )
+                )
+    return findings
+
+
 def run_checks(lines, max_length=79):
     findings = []
     findings.extend(check_line_length(lines, max_length))
     findings.extend(check_trailing_whitespace(lines))
     findings.extend(check_tabs(lines))
+    findings.extend(check_ragged_wrap(lines, max_length))
     findings.sort(key=lambda f: (f.line, f.column))
     return findings

@@ -53,6 +53,7 @@ $ wraplint docs/*.md || echo "wrapping problems found"
 | WL001 | line is longer than the configured max (default 79)  |
 | WL002 | line has trailing whitespace                          |
 | WL003 | line contains a tab character                         |
+| WL004 | line in a hand-wrapped paragraph falls short of the paragraph's wrap width |
 
 ## Install
 
@@ -68,5 +69,7 @@ command on your PATH.
 
 ## Status
 
-Early. The checks above are the ones worth having on day one; the
-interesting ones (see roadmap) are still to come.
+Early. The checks above cover the mechanical problems (length, whitespace,
+tabs) and the first heuristic one (ragged hand-wrapping). Rewrapping with
+`--fix`, markdown-aware code block and URL handling, and per-line ignores
+are still to come.
