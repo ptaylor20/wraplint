@@ -46,6 +46,20 @@ as a pre-commit check or in CI:
 $ wraplint docs/*.md || echo "wrapping problems found"
 ```
 
+Rewrap paragraphs in place instead of just reporting on them:
+
+```
+$ wraplint --fix notes.txt
+wraplint: reformatted notes.txt
+```
+
+`--fix` joins each blank-line-separated paragraph back into a stream of
+words and re-breaks it at `--max-length`, so it fixes overlong lines and
+ragged wraps (WL001, WL004) in one pass, and clears out any trailing
+whitespace or tabs (WL002, WL003) that were part of a paragraph's text
+along the way. Piping through stdin writes the rewrapped text to stdout
+instead of editing anything on disk.
+
 ## Checks
 
 | code  | meaning                                              |
@@ -70,6 +84,6 @@ command on your PATH.
 ## Status
 
 Early. The checks above cover the mechanical problems (length, whitespace,
-tabs) and the first heuristic one (ragged hand-wrapping). Rewrapping with
-`--fix`, markdown-aware code block and URL handling, and per-line ignores
-are still to come.
+tabs) and the first heuristic one (ragged hand-wrapping), and `--fix` can
+rewrap paragraphs to clean most of that up automatically. Markdown-aware
+code block and URL handling, and per-line ignores, are still to come.

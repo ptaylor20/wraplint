@@ -6,6 +6,7 @@ objects. Line and column numbers are 1-based, matching how editors and
 compilers report positions.
 """
 
+import textwrap
 from dataclasses import dataclass
 
 
@@ -106,6 +107,33 @@ def check_ragged_wrap(lines, max_length, threshold=15):
                     )
                 )
     return findings
+
+
+def rewrap_lines(lines, max_length):
+    # Reflows each blank-line-separated paragraph to max_length, the fix
+    # for the ragged-wrap problem WL004 flags: join a paragraph's words
+    # back into one stream and let textwrap re-break it, rather than
+    # trying to patch individual overlong or short lines in place.
+    output = []
+    para_words = []
+
+    def flush():
+        if not para_words:
+            return
+        text = " ".join(para_words)
+        wrapped = textwrap.wrap(text, width=max_length) or [""]
+        output.extend(line + "\n" for line in wrapped)
+
+    for raw in lines:
+        text = _strip_newline(raw)
+        if text.strip() == "":
+            flush()
+            para_words = []
+            output.append("\n")
+        else:
+            para_words.extend(text.split())
+    flush()
+    return output
 
 
 def run_checks(lines, max_length=79):
